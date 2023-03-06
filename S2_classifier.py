@@ -13,7 +13,8 @@ import os
 import geopandas as gpd
 
 os.getcwd()
-
+# To go back one folder in cwd
+#os.chdir("..")
 
 #%% Open Sentinel-2 image
 src = rasterio.open("OneDrive - University Of Oregon\Winter '23\GDS\GDS\FinalProj\QGIS\S2_tile.tif")
@@ -81,3 +82,62 @@ water_df['label'] = 2
 
 final_df = pd.concat([land_df,water_df],ignore_index=True)
 final_df
+
+#Rename Columns (not yet working)
+final_df.rename(columns = {'1':'Band 1'}, {'2':'Band 2'}, {'3':'Band 3'}, {'4':'Band 4'}, {'5':'Band 5'}, {'6':'Band 6'}, {'7':'Band 7'}, {'8':'Band 8'}, {'9':'Band 9'}, {'10':'Band 10'}, {'11':'Band 11'}, {'12':'Band 12'}, inplace = True)
+
+#%% Train Machine Learning Model
+from sklearn.preprocessing import StandardScaler
+
+#Define Feature List
+feature_list = [''] # what are my variables? the different bands?
+
+#Define features/labels
+X = df[]
+y = df['']
+
+#Standardize data
+scaler = StandardScaler()  
+X_scaled = scaler.fit_transform(X)
+df_scaled = pd.DataFrame(X_scaled, columns=feature_list)
+print(df_scaled)
+
+#Split data into training/testing subsets
+from sklearn.model_selection import train_test_split
+
+# Split data 
+X_train, X_test, y_train, y_test = train_test_split(df_scaled, y, test_size=0.2, random_state=42)
+
+#%% RandomForests model
+from sklearn.ensemble import RandomForestRegressor
+
+forest_reg = RandomForestRegressor(n_estimators = 30) #Define
+forest_reg.fit(X_train, y_train) #Fit
+
+# Predict test labels predictions
+predictions = forest_reg.predict(X_test)
+
+# Compute mean-squared-error
+final_mse = mean_squared_error(y_test , predictions)
+final_rmse = np.sqrt(final_mse)
+final_rmse
+
+# Plot (to be customized)
+fig, ax = plt.subplots(figsize=(8, 6))
+ax.scatter(y_test, predictions, alpha=0.1, s=50, zorder=2)
+ax.plot([0,500000], [0, 500000], color='k', lw=1, zorder=3)
+ax.set_ylabel('y label', fontsize=14)
+ax.set_xlabel('x label', fontsize=14)
+ax.tick_params(axis='both', which='major', labelsize=13)
+ax.grid(ls='dashed', lw=1, zorder=1)
+ax.set_ylim(0,500000)
+ax.set_xlim(0,500000)
+
+
+
+
+
+
+
+
+
