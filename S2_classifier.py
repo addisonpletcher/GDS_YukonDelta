@@ -45,7 +45,7 @@ ca_l, ct_l = msk.mask(src, [mapping(land_proj.iloc[0].geometry)], crop=True)
 sa_array_land, clipped_transform = msk.mask(src, [mapping(geom) for geom in land_proj.geometry], crop=True)
 
 all_land = []
-for b in range(src.count):
+for b in range(src.count): 
     #Drop zeros, mask to make one dimensional list (all bands)
     temp_list_L=sa_array_land[b][np.nonzero(sa_array_land[b])]
     all_land.append(temp_list_L)
@@ -81,20 +81,20 @@ land_df['label'] = 1
 water_df['label'] = 2
 
 final_df = pd.concat([land_df,water_df],ignore_index=True)
-final_df
 
-#Rename Columns (not yet working)
-final_df.rename(columns = {'1':'Band 1'}, {'2':'Band 2'}, {'3':'Band 3'}, {'4':'Band 4'}, {'5':'Band 5'}, {'6':'Band 6'}, {'7':'Band 7'}, {'8':'Band 8'}, {'9':'Band 9'}, {'10':'Band 10'}, {'11':'Band 11'}, {'12':'Band 12'}, inplace = True)
+#Rename Columns (Extra column?? No! band 8A is the last one, need to reconfig for this)
+final_df.rename(columns = {0:'Band 1', 1:'Band 2', 2:'Band 3', 3:'Band 4', 4:'Band 5', 5:'Band 6', 6:'Band 7', 7:'Band 8', 8:'Band 9', 9:'Band 10', 10:'Band 11', 11:'Band 12'}, inplace = True)
+final_df
 
 #%% Train Machine Learning Model
 from sklearn.preprocessing import StandardScaler
 
 #Define Feature List
-feature_list = [''] # what are my variables? the different bands?
+feature_list = ['Band 1', 'Band 2', 'Band 3', 'Band 4', 'Band 5', 'Band 6', 'Band 7', 'Band 8', 'Band 8A', 'Band 9', 'Band 10', 'Band 11', 'Band 12']
 
 #Define features/labels
-X = df[]
-y = df['']
+X = final_df[feature_list]
+y = final_df['label']
 
 #Standardize data
 scaler = StandardScaler()  
@@ -118,6 +118,8 @@ forest_reg.fit(X_train, y_train) #Fit
 predictions = forest_reg.predict(X_test)
 
 # Compute mean-squared-error
+from sklearn.metrics import mean_squared_error
+
 final_mse = mean_squared_error(y_test , predictions)
 final_rmse = np.sqrt(final_mse)
 final_rmse
@@ -132,12 +134,3 @@ ax.tick_params(axis='both', which='major', labelsize=13)
 ax.grid(ls='dashed', lw=1, zorder=1)
 ax.set_ylim(0,500000)
 ax.set_xlim(0,500000)
-
-
-
-
-
-
-
-
-
