@@ -6,7 +6,6 @@ Created on Wed Mar  8 14:10:44 2023
 """
 import numpy as np
 import geopandas as gpd
-
 import osmnx as ox
 import networkx as nx
 
@@ -26,7 +25,7 @@ tags = {'trail': True}    #unsure if 'trail' is correct here
 gdf = ox.geometries_from_place('Alakanuk, Alaska, USA', tags) #am I able to do this using a ROI polygon or just listing multiple towns?
 
 # Filter winter trails
-winter_trails = gdf[gdf['Highway'] == 'Winter trail'].reset_index()
+winter_trails = gdf[gdf['Highway']].reset_index()
 print(winter_trails.shape) #tells us number of trails we have to work with
 # https://wiki.openstreetmap.org/wiki/Key:winter_road 
 # https://wiki.openstreetmap.org/wiki/Map_features#Paths  track (for forestry and ag) vs  winter_Rd vs winter trail?

@@ -14,15 +14,15 @@ import geopandas as gpd
 
 os.getcwd()
 # To go back one folder in cwd
-#os.chdir("..")
+os.chdir("..")
 
 #%% Open Sentinel-2 image
-src = rasterio.open("OneDrive - University Of Oregon\Winter '23\GDS\GDS\FinalProj\QGIS\S2_tile.tif")
+src = rasterio.open("QGIS\S2_tile.tif")
 show(src)
 
 #Open classification shapefiles
-land = gpd.read_file("OneDrive - University Of Oregon\Winter '23\GDS\GDS\FinalProj\QGIS\Land.shp")
-water = gpd.read_file("OneDrive - University Of Oregon\Winter '23\GDS\GDS\FinalProj\QGIS\Water.shp")
+land = gpd.read_file("QGIS\Land.shp")
+water = gpd.read_file("QGIS\Water.shp")
 print(land)
 print(water)
 
@@ -83,7 +83,7 @@ water_df['label'] = 2
 final_df = pd.concat([land_df,water_df],ignore_index=True)
 
 #Rename Columns (Extra column?? No! band 8A is the last one, need to reconfig for this)
-final_df.rename(columns = {0:'Band 1', 1:'Band 2', 2:'Band 3', 3:'Band 4', 4:'Band 5', 5:'Band 6', 6:'Band 7', 7:'Band 8', 8:'Band 9', 9:'Band 10', 10:'Band 11', 11:'Band 12'}, inplace = True)
+final_df.rename(columns = {0:'Band 1', 1:'Band 2', 2:'Band 3', 3:'Band 4', 4:'Band 5', 5:'Band 6', 6:'Band 7', 7:'Band 8', 8:'Band 8A', 9:'Band 9', 10:'Band 10', 11:'Band 11', 12:'Band 12'}, inplace = True)
 final_df
 
 #%% Train Machine Learning Model
@@ -117,20 +117,10 @@ forest_reg.fit(X_train, y_train) #Fit
 # Predict test labels predictions
 predictions = forest_reg.predict(X_test)
 
-# Compute mean-squared-error
-from sklearn.metrics import mean_squared_error
+#%%
+# Compute Confusion Matrix
+from sklearn.metrics import confusion_matrix
+print(confusion_matrix(y_test, predictions.astype(int)))
 
-final_mse = mean_squared_error(y_test , predictions)
-final_rmse = np.sqrt(final_mse)
-final_rmse
-
-# Plot (to be customized)
-fig, ax = plt.subplots(figsize=(8, 6))
-ax.scatter(y_test, predictions, alpha=0.1, s=50, zorder=2)
-ax.plot([0,500000], [0, 500000], color='k', lw=1, zorder=3)
-ax.set_ylabel('y label', fontsize=14)
-ax.set_xlabel('x label', fontsize=14)
-ax.tick_params(axis='both', which='major', labelsize=13)
-ax.grid(ls='dashed', lw=1, zorder=1)
-ax.set_ylim(0,500000)
-ax.set_xlim(0,500000)
+#%% Apply over all pixels in new image 
+ice_pred = forest_reg.predict(FILE_TBD)
