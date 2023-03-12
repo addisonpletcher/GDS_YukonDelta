@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Tue Feb 28 09:59:12 2023
+Created on Fri Mar 10 14:06:45 2023
 
 @author: addyp
 """
@@ -14,15 +14,15 @@ import geopandas as gpd
 
 os.getcwd()
 # To go back one folder in cwd
-# os.chdir("..")
+os.chdir("..")
 
 #%% Open summer Sentinel-2 image for training
-src = rasterio.open("addyp\OneDrive - University Of Oregon\Winter '23\GDS\GDS\FinalProj\QGIS\S2_tile.tif")
+src = rasterio.open("QGIS\S2_tile.tif")
 show(src)
 
 #Open classification shapefiles
-land = gpd.read_file("addyp\OneDrive - University Of Oregon\Winter '23\GDS\GDS\FinalProj\QGIS\Land.shp")
-water = gpd.read_file("addyp\OneDrive - University Of Oregon\Winter '23\GDS\GDS\FinalProj\QGIS\Water.shp")
+land = gpd.read_file("QGIS\Land.shp")
+water = gpd.read_file("QGIS\Water.shp")
 print(land)
 print(water)
 
@@ -89,8 +89,8 @@ final_df
 #%% Train Machine Learning Model
 from sklearn.preprocessing import StandardScaler
 
-#Define Feature List (get rid of all these except needed ones)
-feature_list = ['Band 1', 'Band 2', 'Band 3', 'Band 4', 'Band 5', 'Band 6', 'Band 7', 'Band 8', 'Band 8A', 'Band 9', 'Band 10', 'Band 11', 'Band 12']
+#Define Feature List (Green, Red, NIR)
+feature_list = ['Band 3', 'Band 4', 'Band 8']
 
 #Define features/labels
 X = final_df[feature_list]
@@ -122,22 +122,21 @@ from sklearn.metrics import confusion_matrix
 print(confusion_matrix(y_test, predictions.astype(int)))
 
 #%% Import Spring S2 imagery
-spring = rasterio.open("addyp\OneDrive - University Of Oregon\Winter '23\GDS\GDS\FinalProj\S2_spring21.tif")
-show(spring)
+spring = rasterio.open("S2_spring21.tif")
 
-#Read
-spring_array = spring.read()
-spring_array.shape
-
-#change to multidimensional dataframe
-spring_df = pd.DataFrame('spring_array')
-
-#%% won't work- not enough memory 
+# Read, change to 3D array
 band_list = []
+spring_array = spring.read()
 
-for d in range(spring_array.shape[0]-1): # inside () is selecting # bands
+for d in range(spring_array.shape[0]-1): # inside () is selecting # bands... 
     band_list.append(np.ravel(spring_array[d,:,:]))
+    
+# Reshape array
+spring_array_rs = np.reshape(spring_array, (13, 80553312))
+
+# Change to DataFrame
+spring_df = pd.DataFrame(spring_array_rs, columns=band_list).T
 
 #%% Apply over all pixels in new image 
-ice_pred = forest_reg.predict(spring)
+ice_pred = forest_reg.predict(spring_df)
 ice_pred
