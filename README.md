@@ -14,7 +14,9 @@ Seasonal variability of river ice breakup alters accessibility throughout the re
 Earth Observation Imagery: Optical Imagery via Sentinel-2 and SAR Imagery via Sentinel-1 
 
 ### Python packages and dependencies: 
-spyder, matplotlib, geopandas, numpy, rasterio, osmnx, networkx, pandas, jupyter, shapely, jupyterlab, rioxarray, scikit-learn, selenium, bs4, descartes, momepy, folium
+spyder, matplotlib, geopandas, numpy, rasterio, pandas, jupyter, shapely, scikit-learn
+
+TBD: osmnx, networkx, selenium, bs4, descartes, momepy, folium, rioxarray, jupyterlab
 
 ### Methods
 SAR Methodology: Acquire imagery, preprocess using GPT Script, combine imagery using net CDF file, create csv, create RandomForest classification. 
