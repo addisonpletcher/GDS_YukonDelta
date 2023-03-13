@@ -1,4 +1,4 @@
-# Visualizing Ice Breakup on the Yukon Delta, AK
+# Visualizing Ice Breakup on the Yukon River Delta, AK
 
 Addison Pletcher | Kelly Bonnville-Sexton 
 
