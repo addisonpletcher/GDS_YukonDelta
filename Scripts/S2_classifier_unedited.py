@@ -122,22 +122,21 @@ from sklearn.metrics import confusion_matrix
 print(confusion_matrix(y_test, predictions.astype(int)))
 
 #%% Import Spring S2 imagery
-spring = rasterio.open("addyp\OneDrive - University Of Oregon\Winter '23\GDS\GDS\FinalProj\S2_spring21.tif")
-show(spring)
+spring = rasterio.open("S2_spring21.tif")
 
-#Read
-spring_array = spring.read()
-spring_array.shape
-
-#change to multidimensional dataframe
-spring_df = pd.DataFrame('spring_array')
-
-#%% won't work- not enough memory 
+# Read, change to 3D array
 band_list = []
+spring_array = spring.read()
 
-for d in range(spring_array.shape[0]-1): # inside () is selecting # bands
+for d in range(spring_array.shape[0]-1): # inside () is selecting # bands... 
     band_list.append(np.ravel(spring_array[d,:,:]))
+    
+# Reshape array
+spring_array_rs = np.reshape(spring_array, (13, 80553312))
+
+# Change to DataFrame
+spring_df = pd.DataFrame(spring_array_rs, columns=band_list).T
 
 #%% Apply over all pixels in new image 
-ice_pred = forest_reg.predict(spring)
+ice_pred = forest_reg.predict(spring_df)
 ice_pred
