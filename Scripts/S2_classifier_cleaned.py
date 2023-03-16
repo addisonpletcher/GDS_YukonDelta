@@ -19,6 +19,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import confusion_matrix
+import seaborn as sns
 
 #%% Open summer Sentinel-2 image for training
 src = rasterio.open('...')
@@ -68,7 +69,7 @@ water_df['label'] = 2
 final_df = pd.concat([land_df,water_df],ignore_index=True)
 
 #Rename Columns
-final_df.rename(columns = {0:'Band 1', 1:'Band 2', 2:'Band 3', 3:'Band 4', 4:'Band 5', 5:'Band 6', 6:'Band 7', 7:'Band 8', 8:'Band 8A', 9:'Band 9', 10:'Band 10', 11:'Band 11', 12:'Band 12'}, inplace = True)
+final_df.rename(columns = {0:'...', 1:'...', ... , 12:'...'}, inplace = True)
 final_df
 
 #%% Train Machine Learning Model
@@ -96,7 +97,9 @@ forest_reg.fit(X_train, y_train) #Fit
 predictions = forest_reg.predict(X_test)
 
 #%% Compute Confusion Matrix
-print(confusion_matrix(y_test, predictions.astype(int)))
+cm = (confusion_matrix(y_test, predictions.astype(int)))
+sns.heatmap(cm/np.sum(cm), annot=True, 
+            fmt='.2%', cmap='Blues')
 
 #%% Import Spring S2 imagery
 spring = rasterio.open('...')
@@ -109,11 +112,23 @@ for d in range(spring_array.shape[0]-1): # inside () is selecting # bands...
     band_list.append(np.ravel(spring_array[d,:,:]))
     
 # Reshape array
-spring_array_rs = np.reshape(spring_array, (13, 80553312))
+spring_array_rs = np.reshape(spring_array, (..., ...))
 
 # Change to DataFrame
 spring_df = pd.DataFrame(spring_array_rs, columns=band_list).T
+spring_df.rename(columns = {0:'...', 1:'...', 2:'...'}, inplace = True)
+
+# Standardize Data
+spring_scaler = StandardScaler()  
+spring_finaldf = spring_scaler.fit_transform(spring_df)
+print(spring_finaldf)
 
 #%% Apply over all pixels in new image 
 ice_pred = forest_reg.predict(spring_df)
-ice_pred
+
+#Reshape to origial spring array
+ice_pred_2d = np.reshape(ice_pred, (spring_array.shape[1], spring_array.shape[2]))
+
+#Plot
+plt.imshow(ice_pred_2d)
+plt.colorbar()
