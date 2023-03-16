@@ -5,17 +5,12 @@ This script is adapted from the RemoteSensing-of-River-Ice tutorial (https://git
 This script is used to classify a SAR image by using a Random Forest model based on multiple features.
 
 The following input files are required:
-    - Trainig data set (csv-file, output of Scripts/PythonScripts/CreateFeatureMatrix_TrainingValidation.py)
-    Alternative: you can also load a created Random Forest model instead of training the model based on the traning data set. 
-    - Preprocessed intensity features for pixels that you want to classify (csv-file, output of Scripts/PythonScripts/Create
-FeatureMatrix_SARimage.py)
-    - Preprocessed polarimetric features for pixels that you want to classify (csv-file, output of Scripts/PythonScripts/Create
-FeatureMatrix_SARimage.py)
-    - Preprocessed texture features for pixels that you want to classify (csv-file, output of Scripts/PythonScripts/Create
-FeatureMatrix_SARimage.py)
+    - Trainig data set (csv-file) 
+    - Preprocessed intensity features for pixels that you want to classify (csv-file, output of CreateFeatureMatrix_SARimage.py)
+    - Preprocessed texture features for pixels that you want to classify (csv-file, output of CreateFeatureMatrix_SARimage.py)
 
 The output of this script is a GeoTiff file with classified pixels. This file can be imported in QGIS, for example. 
-In this output product the ice classes are represented with numbers, where sheet ice = 1, rubble ice = 2, open water = 3.
+
 @author: Kelly Bonnville-Sexton
 """
 
@@ -28,17 +23,18 @@ import rasterio
 import matplotlib.pyplot as plt
 from sklearn.ensemble import RandomForestClassifier
 
-output_path = "Documents\Geospatial_Data\Final\Outputs"  #(Give your output path to save the classified GeoTiff file)
+#(Give your output path to save the classified GeoTiff file)
+output_path = "..."  
 
 # Give file location training data 
-training_data =  pd.read_csv("Documents\Geospatial_Data\Final\Data\TrainingData\S1_Training_AthabascaRiver.csv") 
+training_data =  pd.read_csv("...") 
 
 
 # Give file location of preprocessed intensity features (output of Scripts/PythonScripts/CreateFeatureMatrix_SARimage.py)
-data_intensity = pd.read_csv("Documents\Geospatial_Data\Final\Outputs\FeatureMatrix_subset.csv") 
+data_intensity = pd.read_csv("...") 
 
 # Give file location of preprocessed texture features (output of Scripts/PythonScripts/CreateFeatureMatrix_SARimage.py)
-data_texture = pd.read_csv("Documents\Geospatial_Data\Final\Outputs\FeatureMatrix_subset.csv") 
+data_texture = pd.read_csv("...") 
 
 #%%
 # Select the columns of interest
@@ -106,7 +102,7 @@ yres = (ymax-ymin)/float(nrows)
 transform = Affine.translation(xmin - xres / 2, ymin - yres / 2) * Affine.scale(xres, yres)
 
 with rasterio.open(
-    "Documents\\Geospatial_Data\\Final\\Outputs\\Classification.tif",
+    output_path,
     mode="w",
     driver="GTiff",
     height=array.shape[0],
