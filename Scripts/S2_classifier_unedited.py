@@ -14,18 +14,17 @@ import geopandas as gpd
 
 os.getcwd()
 # To go back one folder in cwd
-# os.chdir("..")
+os.chdir("..")
 
 #%% Open summer Sentinel-2 image for training
-src = rasterio.open("addyp\OneDrive - University Of Oregon\Winter '23\GDS\GDS\FinalProj\QGIS\S2_tile.tif")
+src = rasterio.open("S2_training_clip.tif")
 show(src)
 
 #Open classification shapefiles
-land = gpd.read_file("addyp\OneDrive - University Of Oregon\Winter '23\GDS\GDS\FinalProj\QGIS\Land.shp")
-water = gpd.read_file("addyp\OneDrive - University Of Oregon\Winter '23\GDS\GDS\FinalProj\QGIS\Water.shp")
+land = gpd.read_file("QGIS\Land.shp")
+water = gpd.read_file("QGIS\Water.shp")
 print(land)
 print(water)
-
 
 #%% prep to sample Sentinel-2 
 from rasterio import mask as msk
@@ -38,7 +37,6 @@ land_proj = land.to_crs('EPSG:32603')
 
 water_proj = water.to_crs('EPSG:32603')
 #water_proj.crs
-
 
 #%% Sample Sentinel-2 data (land)
 ca_l, ct_l = msk.mask(src, [mapping(land_proj.iloc[0].geometry)], crop=True)
@@ -76,21 +74,20 @@ water_df = pd.DataFrame(all_water).T
 #sa_array_water[0][np.nonzero(sa_array_water[0])]
 
 #%% Combine dataframes, add column 
-
 land_df['label'] = 1
 water_df['label'] = 2
 
 final_df = pd.concat([land_df,water_df],ignore_index=True)
 
 #Rename Columns (Extra column?? No! band 8A is the last one, need to reconfig for this)
-final_df.rename(columns = {0:'Band 1', 1:'Band 2', 2:'Band 3', 3:'Band 4', 4:'Band 5', 5:'Band 6', 6:'Band 7', 7:'Band 8', 8:'Band 8A', 9:'Band 9', 10:'Band 10', 11:'Band 11', 12:'Band 12'}, inplace = True)
+final_df.rename(columns = {0:'B3:Green', 1:'B4:Red', 2:'B8:NIR'}, inplace = True)
 final_df
 
 #%% Train Machine Learning Model
 from sklearn.preprocessing import StandardScaler
 
-#Define Feature List (get rid of all these except needed ones)
-feature_list = ['Band 1', 'Band 2', 'Band 3', 'Band 4', 'Band 5', 'Band 6', 'Band 7', 'Band 8', 'Band 8A', 'Band 9', 'Band 10', 'Band 11', 'Band 12']
+#Define Feature List 
+feature_list = ['B3:Green', 'B4:Red', 'B8:NIR']
 
 #Define features/labels
 X = final_df[feature_list]
@@ -119,10 +116,14 @@ predictions = forest_reg.predict(X_test)
 
 #%% Compute Confusion Matrix
 from sklearn.metrics import confusion_matrix
-print(confusion_matrix(y_test, predictions.astype(int)))
+cm = (confusion_matrix(y_test, predictions.astype(int)))
+
+import seaborn as sns
+sns.heatmap(cm/np.sum(cm), annot=True, 
+            fmt='.2%', cmap='Blues')
 
 #%% Import Spring S2 imagery
-spring = rasterio.open("S2_spring21.tif")
+spring = rasterio.open("S2_spring21_3band.tif")
 
 # Read, change to 3D array
 band_list = []
@@ -132,11 +133,57 @@ for d in range(spring_array.shape[0]-1): # inside () is selecting # bands...
     band_list.append(np.ravel(spring_array[d,:,:]))
     
 # Reshape array
-spring_array_rs = np.reshape(spring_array, (13, 80553312))
+spring_array_rs = np.reshape(spring_array, (3, 80472968))
 
 # Change to DataFrame
 spring_df = pd.DataFrame(spring_array_rs, columns=band_list).T
+spring_df.rename(columns = {0:'B3:Green', 1:'B4:Red', 2:'B8:NIR'}, inplace = True)
+
+# Standardize Data
+spring_scaler = StandardScaler()  
+spring_finaldf = spring_scaler.fit_transform(spring_df)
+print(spring_finaldf)
 
 #%% Apply over all pixels in new image 
-ice_pred = forest_reg.predict(spring_df)
-ice_pred
+ice_pred = forest_reg.predict(spring_finaldf)
+
+#Reshape to origial spring array
+ice_pred_2d = np.reshape(ice_pred, (spring_array.shape[1], spring_array.shape[2]))
+
+#Plot
+plt.imshow(ice_pred_2d)
+plt.colorbar()
+
+# See how many pixel classified as water/land
+(ice_pred == 1).sum()
+(ice_pred == 2).sum()
+
+#%% Apply to Summer image (training image) to compare with SAR image
+summer = rasterio.open("S2_training_clip.tif")
+
+# Read, change to 3D array
+band_list = []
+summer_array = summer.read()
+
+for d in range(summer_array.shape[0]-1): # inside () is selecting # bands... 
+    band_list.append(np.ravel(summer_array[d,:,:]))
+    
+# Reshape array
+summer_array_rs = np.reshape(summer_array, (3, 13973880))
+
+# Change to DataFrame
+summer_df = pd.DataFrame(summer_array_rs, columns=band_list).T
+summer_df.rename(columns = {0:'B3:Green', 1:'B4:Red', 2:'B8:NIR'}, inplace = True)
+
+summer_scaler = StandardScaler()  
+summer_finaldf = summer_scaler.fit_transform(summer_df)
+
+#apply classification over all pixels
+summer_pred = forest_reg.predict(summer_finaldf)
+
+#Reshape to origial spring array
+summer_pred_2d = np.reshape(summer_pred, (summer_array.shape[1], summer_array.shape[2]))
+
+#Plot
+plt.imshow(summer_pred_2d)
+plt.colorbar()
