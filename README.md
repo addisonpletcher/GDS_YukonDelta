@@ -1,4 +1,4 @@
-# Methodological Comparison of Water Classificaction: Yukon River Delta, AK
+# Methodological Comparison of Water Classification: Yukon River Delta, AK
 
 Addison Pletcher | Kelly Bonnville-Sexton 
 
