@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Fri Mar 10 14:06:45 2023
+Created on Tue Feb 28 09:59:12 2023
 
 @author: addyp
 """
@@ -26,7 +26,6 @@ water = gpd.read_file("QGIS\Water.shp")
 print(land)
 print(water)
 
-
 #%% prep to sample Sentinel-2 
 from rasterio import mask as msk
 from shapely.geometry import mapping
@@ -38,7 +37,6 @@ land_proj = land.to_crs('EPSG:32603')
 
 water_proj = water.to_crs('EPSG:32603')
 #water_proj.crs
-
 
 #%% Sample Sentinel-2 data (land)
 ca_l, ct_l = msk.mask(src, [mapping(land_proj.iloc[0].geometry)], crop=True)
@@ -76,7 +74,6 @@ water_df = pd.DataFrame(all_water).T
 #sa_array_water[0][np.nonzero(sa_array_water[0])]
 
 #%% Combine dataframes, add column 
-
 land_df['label'] = 1
 water_df['label'] = 2
 
@@ -190,4 +187,3 @@ summer_pred_2d = np.reshape(summer_pred, (summer_array.shape[1], summer_array.sh
 #Plot
 plt.imshow(summer_pred_2d)
 plt.colorbar()
-
