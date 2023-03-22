@@ -20,13 +20,5 @@ S2 = "S2_training_clip.tif"
 #Compute Confusion Matrix
 cf_matrix = (confusion_matrix(SAR, S2))
 
-
-
-
-
-
-'''
-import sklearn
-from matplotlib import seaborn as sns #Give locations of SAR and Sentinel-2 images
-SAR = "Documents\Geospatial_Data\Final\Outputs\Classification_clipped.tif"
-S2 = "Documents\Geospatial_Data\Final\S2_training_clip.tif"
+#Compute Confusion Matrix
+cf_matrix = (confusion_matrix(S2, SAR))

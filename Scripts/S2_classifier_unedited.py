@@ -12,9 +12,9 @@ import numpy as np
 import os
 import geopandas as gpd
 
-os.getcwd()
+#os.getcwd()
 # To go back one folder in cwd
-os.chdir("..")
+#os.chdir("..")
 
 #%% Open summer Sentinel-2 image for training
 src = rasterio.open("S2_training_clip.tif")
@@ -122,43 +122,7 @@ import seaborn as sns
 sns.heatmap(cm/np.sum(cm), annot=True, 
             fmt='.2%', cmap='Blues')
 
-#%% Import Spring S2 imagery
-spring = rasterio.open("S2_spring21_3band.tif")
-
-# Read, change to 3D array
-band_list = []
-spring_array = spring.read()
-
-for d in range(spring_array.shape[0]-1): # inside () is selecting # bands... 
-    band_list.append(np.ravel(spring_array[d,:,:]))
-    
-# Reshape array
-spring_array_rs = np.reshape(spring_array, (3, 80472968))
-
-# Change to DataFrame
-spring_df = pd.DataFrame(spring_array_rs, columns=band_list).T
-spring_df.rename(columns = {0:'B3:Green', 1:'B4:Red', 2:'B8:NIR'}, inplace = True)
-
-# Standardize Data
-spring_scaler = StandardScaler()  
-spring_finaldf = spring_scaler.fit_transform(spring_df)
-print(spring_finaldf)
-
-#%% Apply over all pixels in new image 
-ice_pred = forest_reg.predict(spring_finaldf)
-
-#Reshape to origial spring array
-ice_pred_2d = np.reshape(ice_pred, (spring_array.shape[1], spring_array.shape[2]))
-
-#Plot
-plt.imshow(ice_pred_2d)
-plt.colorbar()
-
-# See how many pixel classified as water/land
-(ice_pred == 1).sum()
-(ice_pred == 2).sum()
-
-#%% Apply to Summer image (training image) to compare with SAR image
+#%% Apply to Summer (training image) to compare with SAR image
 summer = rasterio.open("S2_training_clip.tif")
 
 # Read, change to 3D array
@@ -187,3 +151,112 @@ summer_pred_2d = np.reshape(summer_pred, (summer_array.shape[1], summer_array.sh
 #Plot
 plt.imshow(summer_pred_2d)
 plt.colorbar()
+
+#%% Apply to spring imagery | May 2016
+sp16 = rasterio.open("S2_spring16.tif")
+
+# Read, change to 3D array
+band_list = []
+sp16_array = sp16.read()
+
+for d in range(sp16_array.shape[0]-1): # inside () is selecting # bands... 
+    band_list.append(np.ravel(sp16_array[d,:,:]))
+    
+# Reshape array
+sp16_array_rs = np.reshape(sp16_array, (3, 85058094))
+
+# Change to DataFrame
+sp16_df = pd.DataFrame(sp16_array_rs, columns=band_list).T
+sp16_df.rename(columns = {0:'B3:Green', 1:'B4:Red', 2:'B8:NIR'}, inplace = True)
+
+# Standardize Data
+sp16_scaler = StandardScaler()  
+sp16_finaldf = sp16_scaler.fit_transform(sp16_df)
+print(sp16_finaldf)
+
+#Apply over all pixels in new image 
+sp16_pred = forest_reg.predict(sp16_finaldf)
+
+#Reshape to origial spring array
+sp16_pred_2d = np.reshape(sp16_pred, (sp16_array.shape[1], sp16_array.shape[2]))
+
+#Plot
+plt.imshow(sp16_pred_2d)
+plt.colorbar()
+
+# See how many pixel classified as water/land
+(sp16_pred == 1).sum()
+(sp16_pred == 2).sum()
+
+
+#%% Apply to spring imagery | May 2018
+sp18 = rasterio.open("S2_spring18.tif")
+
+# Read, change to 3D array
+band_list = []
+sp18_array = sp18.read()
+
+for d in range(sp18_array.shape[0]-1): # inside () is selecting # bands... 
+    band_list.append(np.ravel(sp18_array[d,:,:]))
+    
+# Reshape array
+sp18_array_rs = np.reshape(sp18_array, (3, 87825934))
+
+# Change to DataFrame
+sp18_df = pd.DataFrame(sp18_array_rs, columns=band_list).T
+sp18_df.rename(columns = {0:'B3:Green', 1:'B4:Red', 2:'B8:NIR'}, inplace = True)
+
+# Standardize Data
+sp18_scaler = StandardScaler()  
+sp18_finaldf = sp18_scaler.fit_transform(sp18_df)
+print(sp18_finaldf)
+
+#Apply over all pixels in new image 
+sp18_pred = forest_reg.predict(sp18_finaldf)
+
+#Reshape to origial spring array
+sp18_pred_2d = np.reshape(sp18_pred, (sp18_array.shape[1], sp18_array.shape[2]))
+
+#Plot
+plt.imshow(sp18_pred_2d)
+plt.colorbar()
+
+# See how many pixel classified as water/land
+(sp18_pred == 1).sum()
+(sp18_pred == 2).sum()
+
+#%% Apply to spring imagery | May 2021
+sp21 = rasterio.open("S2_spring21_3band.tif")
+
+# Read, change to 3D array
+band_list = []
+sp21_array = sp21.read()
+
+for d in range(sp21_array.shape[0]-1): # inside () is selecting # bands... 
+    band_list.append(np.ravel(sp21_array[d,:,:]))
+    
+# Reshape array
+sp21_array_rs = np.reshape(sp21_array, (3, 80472968))
+
+# Change to DataFrame
+sp21_df = pd.DataFrame(sp21_array_rs, columns=band_list).T
+sp21_df.rename(columns = {0:'B3:Green', 1:'B4:Red', 2:'B8:NIR'}, inplace = True)
+
+# Standardize Data
+sp21_scaler = StandardScaler()  
+sp21_finaldf = sp21_scaler.fit_transform(sp21_df)
+print(sp21_finaldf)
+
+#Apply over all pixels in new image 
+sp21_pred = forest_reg.predict(sp21_finaldf)
+
+#Reshape to origial spring array
+sp21_pred_2d = np.reshape(sp21_pred, (sp21_array.shape[1], sp21_array.shape[2]))
+
+#Plot
+plt.imshow(sp21_pred_2d)
+plt.colorbar()
+
+# See how many pixel classified as water/land
+(sp21_pred == 1).sum()
+(sp21_pred == 2).sum()
