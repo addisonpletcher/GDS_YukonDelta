@@ -17,14 +17,16 @@ import geopandas as gpd
 #os.chdir("..")
 
 #%% Open summer Sentinel-2 image for training
-src = rasterio.open("S2_training_clip.tif")
+src = rasterio.open("S2_spring21_3band.tif")
 show(src)
 
 #Open classification shapefiles
 land = gpd.read_file("QGIS\Land.shp")
-water = gpd.read_file("QGIS\Water.shp")
+water = gpd.read_file("water_new.shp")
+ice = gpd.read_file("ice.shp")
 print(land)
 print(water)
+print(ice)
 
 #%% prep to sample Sentinel-2 
 from rasterio import mask as msk
@@ -37,6 +39,8 @@ land_proj = land.to_crs('EPSG:32603')
 
 water_proj = water.to_crs('EPSG:32603')
 #water_proj.crs
+
+ice_proj = ice.to_crs('EPSG:32603')
 
 #%% Sample Sentinel-2 data (land)
 ca_l, ct_l = msk.mask(src, [mapping(land_proj.iloc[0].geometry)], crop=True)
@@ -73,11 +77,28 @@ water_df = pd.DataFrame(all_water).T
 # No longer needed because included in for loop
 #sa_array_water[0][np.nonzero(sa_array_water[0])]
 
+#%% Sample Sentinel-2 data (ice)
+ca_i, ct_i = msk.mask(src, [mapping(ice_proj.iloc[0].geometry)], crop=True)
+sa_array_ice, clipped_transform = msk.mask(src, [mapping(geom) for geom in ice_proj.geometry], crop=True)
+
+all_ice = []
+for d in range(src.count): 
+    #Drop zeros, mask to make one dimensional list (all bands)
+    temp_list_L=sa_array_ice[d][np.nonzero(sa_array_ice[d])]
+    all_ice.append(temp_list_L)
+
+#Check length, should be amount of bands we have
+#len(all_land)
+
+# Convert to df
+ice_df = pd.DataFrame(all_ice).T
+
 #%% Combine dataframes, add column 
 land_df['label'] = 1
 water_df['label'] = 2
+ice_df['label'] = 3
 
-final_df = pd.concat([land_df,water_df],ignore_index=True)
+final_df = pd.concat([land_df,water_df,ice_df],ignore_index=True)
 
 #Rename Columns (Extra column?? No! band 8A is the last one, need to reconfig for this)
 final_df.rename(columns = {0:'B3:Green', 1:'B4:Red', 2:'B8:NIR'}, inplace = True)
@@ -106,9 +127,9 @@ from sklearn.model_selection import train_test_split
 X_train, X_test, y_train, y_test = train_test_split(df_scaled, y, test_size=0.2, random_state=42)
 
 #%% RandomForests model
-from sklearn.ensemble import RandomForestRegressor
+from sklearn.ensemble import RandomForestClassifier
 
-forest_reg = RandomForestRegressor(n_estimators = 30) #Define
+forest_reg = RandomForestClassifier(n_estimators = 30) #Define
 forest_reg.fit(X_train, y_train) #Fit
 
 # Predict test labels predictions
@@ -116,10 +137,10 @@ predictions = forest_reg.predict(X_test)
 
 #%% Compute Confusion Matrix
 from sklearn.metrics import confusion_matrix
-cm = (confusion_matrix(y_test, predictions.astype(int)))
+training_cm = (confusion_matrix(y_test, predictions.astype(int)))
 
 import seaborn as sns
-sns.heatmap(cm/np.sum(cm), annot=True, 
+sns.heatmap(training_cm/np.sum(training_cm), annot=True, 
             fmt='.2%', cmap='Blues')
 
 #%% Apply to Summer (training image) to compare with SAR image
@@ -184,10 +205,10 @@ sp16_pred_2d = np.reshape(sp16_pred, (sp16_array.shape[1], sp16_array.shape[2]))
 plt.imshow(sp16_pred_2d)
 plt.colorbar()
 
-# See how many pixel classified as water/land
+# See how many pixel classified as water/land/ice
 (sp16_pred == 1).sum()
 (sp16_pred == 2).sum()
-
+(sp16_pred == 3).sum()
 
 #%% Apply to spring imagery | May 2018
 sp18 = rasterio.open("S2_spring18.tif")
@@ -224,7 +245,7 @@ plt.colorbar()
 # See how many pixel classified as water/land
 (sp18_pred == 1).sum()
 (sp18_pred == 2).sum()
-
+(sp18_pred == 3).sum()
 #%% Apply to spring imagery | May 2021
 sp21 = rasterio.open("S2_spring21_3band.tif")
 
@@ -260,3 +281,28 @@ plt.colorbar()
 # See how many pixel classified as water/land
 (sp21_pred == 1).sum()
 (sp21_pred == 2).sum()
+(sp21_pred == 3).sum()
+
+#%%
+# Write to GeoTiff   
+transform = sp21.transform
+
+with rasterio.open(
+        "S2_Spring21_Classification.tif",
+        mode="w",
+        driver="GTiff",
+        height=sp21_pred_2d.shape[0],
+        width=sp21_pred_2d.shape[1],
+        count=1,
+        dtype=sp21_pred_2d.dtype,
+        crs="EPSG:32603",
+        transform=transform,
+) as new_dataset:
+        new_dataset.write(sp21_pred_2d, 1)
+    
+    
+    
+    
+    
+    
+    
