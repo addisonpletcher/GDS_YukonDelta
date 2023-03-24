@@ -1,4 +1,4 @@
-# Methodological Comparison of Water Classification: Yukon River Delta, AK
+# Methodological Comparison of Ice Classification: Yukon River Delta, AK
 
 Addison Pletcher | Kelly Bonnville-Sexton 
 
@@ -9,7 +9,7 @@ This project seeks to understand the differences in using SAR vs Optical Imagery
 
 ### Use
 The following scripts are for Optical Imagery classification: S2_WinterClassification.py, S2_classifier_unedited.py
-The following scripts are for SAR Imagery classification: CreateFeatureMatrix_SARimage.py, SAR_Classification.py
+The following scripts are for SAR Imagery classification: CreateFeatureMatrix_SARimage.py, SAR_Classification.py, Compare_SAR_S2.py
 
 ### Problem Statement
 Seasonal variability of river ice breakup alters accessibility throughout the region, and climate change stands to exacerbate these timing changes in the future. Radar data has potential to offer unique results, as optical imagery of the area was often obscured by clouds.
@@ -22,11 +22,11 @@ spyder, matplotlib, geopandas, numpy, rasterio, pandas, shapely, scikit-learn, n
 
 ### Methods
 SAR Methodology: Acquire imagery, preprocess using GPT Script, combine imagery using net CDF file, create csv, create RandomForest classification. 
-
 Sentinel-2 Methodology: Acquire imagery, landcover shapefile creation, load imagery and shapefiles to code, sample S2 data, train ML model, apply model for land cover prediction.
+Compare SAR classified image to Sentinel-2 classified image. 
 
 ### Outcomes
-Methodology Comparison in classifying water between Sentinel-1 SAR and Sentinel-2 Optical Imagery
+Methodology Comparison in classifying ice between Sentinel-1 SAR and Sentinel-2 Optical Imagery
 
 ### References
 de Roda Husman, S. et al. (2021) Integrating intensity and context for improved supervised river ice classification from dual-pol sentinel-1 sar data, International Journal of Applied Earth Observation and Geoinformation. Elsevier. Available at: https://www.sciencedirect.com/science/article/pii/S0303243421000660 (Accessed: February 24, 2023). 
