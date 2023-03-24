@@ -16,7 +16,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 #Bring in classified SAR
-src = rasterio.open("Documents\Geospatial_Data\Final\Current\SARClassification_matched.tif")
+src = rasterio.open(...)
 src
 
 src.transform
@@ -25,7 +25,7 @@ SAR = src.read(1)
 SAR
 
 #Bring in classifed Sentinel 2
-src2 = rasterio.open("Documents\Geospatial_Data\Final\Current\S2_Winter23_classification_modified.tif")
+src2 = rasterio.open(...)
 src2
 
 src2.transform
@@ -33,7 +33,7 @@ S2 = src2.read(1)
 S2
 
 #%%
-# Re-assign land cover class
+# Re-assign ice classes so only one class for all ice
 SAR[SAR == 2] = 1
 SAR[SAR == 4] = 1
 
@@ -48,7 +48,7 @@ icechange_df = pd.DataFrame(list(zip(unique, counts, (counts/mask.shape[0])*100)
 icechange_df
 
 #%%
-#plot changes in ice
+#plot S2-ice vs SAR- ice
 ice2ice = (S2 == 3) & (SAR == 1)
 fig, ax = plt.subplots(figsize=(16,8))
 im = ax.imshow(ice2ice.astype(int), cmap='Blues')
@@ -57,7 +57,7 @@ fig.colorbar(im, orientation='vertical')
 
 
 #%%
-#plot changes in ice
+#plot S2- non-ice vs SAR ice 
 water2ice = (S2 == 2) & (SAR == 1)
 fig, ax = plt.subplots(figsize=(16,8))
 im2 = ax.imshow(water2ice.astype(int), cmap='Blues')
