@@ -9,7 +9,7 @@ This project seeks to understand the differences in using SAR vs Optical Imagery
 
 ### Use
 The following scripts are for Optical Imagery classification: S2_WinterClassification.py, S2_classifier_unedited.py
-The following scripts are for SAR Imagery classification: CreateFeatureMatrix_SARimage.py, SAR_Classification.py, Compare_SAR_S2.py
+The following scripts are for SAR Imagery classification: CreateFeatureMatrix_SARimage.py, SAR_Classification.py, SAR_S2_Comparison.py
 
 ### Problem Statement
 Seasonal variability of river ice breakup alters accessibility throughout the region, and climate change stands to exacerbate these timing changes in the future. Radar data has potential to offer unique results, as optical imagery of the area was often obscured by clouds.
