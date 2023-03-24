@@ -2,6 +2,7 @@
 """
 Created on Thu Mar 23 14:36:09 2023
 
+This is a modified version of the S2_classifier script with the sole purpose of ice classification over winter imagery. Output to be used for comparison script.
 @author: addyp
 """
 
