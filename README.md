@@ -22,6 +22,8 @@ spyder, matplotlib, geopandas, numpy, rasterio, pandas, shapely, scikit-learn, n
 
 ### Methods
 SAR Methodology: Acquire imagery, preprocess using GPT Script, combine imagery using net CDF file, create csv, create RandomForest classification. 
+![alt text]("C:\Users\bonnv\Documents\Geospatial_Data\Final\Current\Preprocessing.png")
+
 Sentinel-2 Methodology: Acquire imagery, landcover shapefile creation, load imagery and shapefiles to code, sample S2 data, train ML model, apply model for land cover prediction.
 
 ### Outcomes
