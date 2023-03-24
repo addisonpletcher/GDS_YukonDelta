@@ -2,6 +2,10 @@
 """
 Created on Tue Feb 28 09:59:12 2023
 
+
+This script's purpose is to read and sample training data for a machine learning model and subsequent RandomForest Classification for summer/spring trained models (based on inputs)
+
+
 @author: addyp
 """
 
@@ -73,9 +77,6 @@ for c in range(src.count):
 
 # Convert to df
 water_df = pd.DataFrame(all_water).T
-
-# No longer needed because included in for loop
-#sa_array_water[0][np.nonzero(sa_array_water[0])]
 
 #%% Sample Sentinel-2 data (ice)
 ca_i, ct_i = msk.mask(src, [mapping(ice_proj.iloc[0].geometry)], crop=True)
