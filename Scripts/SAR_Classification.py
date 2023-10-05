@@ -23,7 +23,7 @@ import rasterio
 import matplotlib.pyplot as plt
 from sklearn.ensemble import RandomForestClassifier
 
-#(Give your output path to save the classified GeoTiff file)
+#Give your output path to save the classified GeoTiff file
 output_path = "..."  
 
 # Give file location training data 
@@ -82,7 +82,7 @@ lats = df_final_numbers['lat']
 vals = df_final_numbers['Prediction']
 
 #%%
-# Craate arrays (this step is required when writing GeoTiff files)
+# Create arrays (this step is required when writing GeoTiff files)
 lat_vals, lat_idx = np.unique(lats, return_inverse=True)
 lon_vals, lon_idx = np.unique(lons, return_inverse=True)
 vals_array = np.empty(lat_vals.shape + lon_vals.shape)
